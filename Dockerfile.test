@@ -1,0 +1,16 @@
+FROM python:3.5
+
+WORKDIR /opt/fairing
+
+# Install dependencies
+COPY setup.py requirements.txt /opt/fairing/
+RUN pip install -e .
+
+# Install test dependencies
+RUN pip install pytest
+
+# Install Fairing
+COPY . /opt/fairing
+RUN python setup.py install
+
+CMD pytest

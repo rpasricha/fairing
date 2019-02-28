@@ -6,12 +6,14 @@ WORKDIR /opt/fairing
 COPY setup.py requirements.txt /opt/fairing/
 RUN pip install -e .
 
-RUN curl https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz > /tmp/google-cloud-sdk.tar.gz
-RUN mkdir -p /usr/local/gcloud
-RUN tar -C /usr/local/gcloud -xf /tmp/google-cloud-sdk.tar.gz
-RUN /usr/local/gcloud/google-cloud-sdk/install.sh
-ENV PATH $PATH:/usr/local/gcloud/google-cloud-sdk/bin
-RUN echo '[GoogleCompute]\nservice_account = default' > /etc/boto.cfg
+# Install gcloud
+RUN mkdir -p /builder && \
+	wget -qO- https://dl.google.com/dl/cloudsdk/release/google-cloud-sdk.tar.gz | tar zxv -C /builder && \
+	CLOUDSDK_PYTHON="python2.7" /builder/google-cloud-sdk/install.sh --usage-reporting=false \
+		--bash-completion=false \
+		--disable-installation-options && \
+	rm -rf ~/.config/gcloud
+ENV PATH=/builder/google-cloud-sdk/bin/:$PATH
 
 # Install test dependencies
 RUN pip install pytest

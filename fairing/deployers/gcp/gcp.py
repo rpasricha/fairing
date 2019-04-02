@@ -28,8 +28,8 @@ class GCPJob(DeployerInterface):
 
         self._ml = discovery.build('ml', 'v1')
 
-    def deploy(self, pod_template_spec):
-        """Deploys the training job"""
+    def create_request_dict(self, pod_template_spec):
+        """Return the request to be sent to the ML Engine API."""
         # TODO: Update deploy interface to pass image directly instad of
         # PodTemplateSpec.
         # Retrieve image uri from pod template spec.
@@ -51,6 +51,12 @@ class GCPJob(DeployerInterface):
 
         if self._region:
             request_dict['trainingInput']['region'] = self._region
+
+        return request_dict
+
+    def deploy(self, pod_template_spec):
+        """Deploys the training job"""
+        request_dict = self.create_request_dict(pod_template_spec)
 
         try:
             print('Creating training job with the following options: {}'.format(
